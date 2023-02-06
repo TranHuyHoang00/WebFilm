@@ -15,6 +15,9 @@ class DetailUser extends React.Component {
             console.log(res);
         }
     }
+    handleBackButton = () => {
+        this.props.history.push('/user')
+    }
     render() {
         let { user } = this.state;
         let isEmptyObj = Object.keys(user).length === 0
@@ -28,6 +31,9 @@ class DetailUser extends React.Component {
                         <div>User's name:{user.first_name}-{user.last_name}</div>
                         <div>User's email:{user.email}</div>
                         <div><img src={user.avatar} /></div>
+                        <div>
+                            <button type='button' onClick={() => this.handleBackButton()}>Back</button>
+                        </div>
                     </>
                 }
             </>
