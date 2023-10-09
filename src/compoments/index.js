@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Switch, Route, Redirect } from "react-router-dom";
 import { withRouter } from 'react-router-dom';
-import ErrPage from './page/errPage';
+import ErrPage from './pages/errPage';
 import User from './users/index';
 import DashBoard from './dashboards/index';
 class index extends Component {
