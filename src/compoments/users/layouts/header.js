@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import { AiOutlineSearch, AiOutlineClose, AiOutlineMenuFold, AiOutlineMenuUnfold } from "react-icons/ai";
 import { withRouter } from 'react-router-dom';
-import { Button, Input, Menu } from 'antd';
+import { Button, Input, Menu, Avatar, Dropdown, Space } from 'antd';
+import { UserOutlined, CaretDownOutlined, } from '@ant-design/icons';
+import { connect } from 'react-redux';
+import * as actions from '../../../store/actions';
+import { toast } from 'react-toastify';
+import { GetLocal_AcountUser, RemoveLocal_AcountUser } from '../../../auths/localStorage';
 const { Search } = Input;
 class header extends Component {
     constructor(props) {
@@ -9,9 +14,14 @@ class header extends Component {
         this.state = {
             isOpenSearch: false,
             isOpenMenu: true,
+            dataAcount: null,
         }
     }
     async componentDidMount() {
+        let dataLogin = GetLocal_AcountUser();
+        if (dataLogin && dataLogin.data && dataLogin.data.access) {
+            this.setState({ dataAcount: dataLogin.data.user })
+        } else { this.setState({ dataAcount: null }) }
     }
     onClickSearch = () => {
         this.setState({ isOpenSearch: !this.state.isOpenSearch })
@@ -22,37 +32,42 @@ class header extends Component {
     onClickPage = (value) => {
         if (value == 'home') { this.props.history.push(`/home`); }
         if (value == 'login') { this.props.history.push(`/home/login`); }
-        if (value == 'filter') { this.props.history.push(`/home//filter`); }
     }
     onClickMenu = (value) => {
         if (value.key == 'home') { this.props.history.push(`/home`); }
-        if (value.key == 'filter') { this.props.history.push(`/home/filter`); }
+        if (value.key == 'category') {
+            this.props.history.push(`/home/product_category/0`)
+        }
+    }
+    handleOnchangeSearch = (value) => {
+        if (!value) {
+            toast.error("Vui lòng điền vào ô tìm kiếm")
+        } else {
+            this.props.history.push('/home/search');
+            this.props.get_data_from_search_film(value);
+        }
+    }
+    LogOut = () => {
+        this.setState({ dataAcount: null })
+        RemoveLocal_AcountUser();
     }
     render() {
-        const items = [
+        let dataAcount = this.state.dataAcount;
+        const items1 = [
             {
                 label: 'Trang chủ',
                 key: 'home',
             },
             {
-                label: 'Bộ lọc',
-                key: 'filter',
-            },
-            {
                 label: 'Thể loại',
                 key: 'category',
-                children: [
-                    {
-                        label: 'Hành động',
-                        key: 'action',
-                    },
-                    {
-                        label: 'Kinh dị',
-                        key: 'horror',
-                    },
-                ],
             },
-
+        ];
+        const items = [
+            {
+                key: '1',
+                label: (<a onClick={() => this.LogOut()}>Đăng xuất</a>),
+            },
         ];
         return (
             <div className='text-white '>
@@ -67,7 +82,8 @@ class header extends Component {
                                 <AiOutlineMenuUnfold />
                             </div>
                         }
-                        <img className='cursor-pointer' onClick={() => this.onClickPage('home')} src='https://motchillzz.tv/_ipx/f_webp&s_200x52/logo.png' />
+                        <img className='cursor-pointer' onClick={() => this.onClickPage('home')}
+                            src='https://motchillzz.tv/_ipx/f_webp&s_200x52/logo.png' />
                         <div className='block md:hidden'>
                             {this.state.isOpenSearch == false ?
                                 <Button onClick={() => this.onClickSearch()}
@@ -81,30 +97,53 @@ class header extends Component {
                             <Search className='border border-white rounded-[7px]'
                                 placeholder="Nhập thông tin tìm kiếm"
                                 enterButton
-                            //onSearch={onSearch}
+                                onSearch={(value) => this.handleOnchangeSearch(value)}
                             />
                         </div>
-                        <div className='sm:block hidden'>
-                            <button onClick={() => this.onClickPage('login')}>
-                                Đăng nhập/ Đăng ký
-                            </button>
-                        </div>
-                    </div>
-                    <div className='space-y-[10px]'>
-                        <div className='flex items-center justify-center'>
-                            <div className='sm:hidden block'>
+                        {dataAcount == null ?
+                            <div className='sm:block hidden'>
                                 <button onClick={() => this.onClickPage('login')}>
                                     Đăng nhập/ Đăng ký
                                 </button>
                             </div>
-                        </div>
+                            :
+                            <div className='sm:block hidden'>
+                                <Dropdown menu={{ items, }}>
+                                    <Space>
+                                        <Avatar style={{ backgroundColor: '#87d068', }} icon={<UserOutlined />} />
+                                        <label>{dataAcount.last_name}</label>
+                                        <CaretDownOutlined />
+                                    </Space>
+                                </Dropdown>
+
+                            </div>
+                        }
+                    </div>
+                    <div className='space-y-[10px]'>
+                        {dataAcount == null ?
+                            <div className='sm:hidden flex items-center justify-center'>
+                                <button onClick={() => this.onClickPage('login')}>
+                                    Đăng nhập/ Đăng ký
+                                </button>
+                            </div>
+                            :
+                            <div className='sm:hidden flex items-center justify-center'>
+                                <Dropdown menu={{ items, }}>
+                                    <Space>
+                                        <Avatar style={{ backgroundColor: '#87d068', }} icon={<UserOutlined />} />
+                                        <label>{dataAcount.last_name}</label>
+                                        <CaretDownOutlined />
+                                    </Space>
+                                </Dropdown>
+
+                            </div>
+                        }
                         {this.state.isOpenSearch &&
                             <div className=''>
-                                <Search
-                                    className='border border-white rounded-[7px] '
+                                <Search className='md:hidden block border border-white rounded-[7px] '
                                     placeholder="Nhập thông tin tìm kiếm"
                                     enterButton
-                                //onSearch={onSearch}
+                                    onSearch={(value) => this.handleOnchangeSearch(value)}
                                 />
                             </div>
                         }
@@ -117,7 +156,7 @@ class header extends Component {
                             mode="horizontal" theme='dark'
                             onClick={(value) => this.onClickMenu(value)}
                             defaultSelectedKeys={['home']}
-                            items={items}
+                            items={items1}
                             className='bg-[#151414] text-white text-[16px]  '
                         />
                     }
@@ -127,4 +166,13 @@ class header extends Component {
     }
 
 }
-export default withRouter(header);
+const mapStateToProps = state => {
+    return {
+    };
+};
+const mapDispatchToProps = dispatch => {
+    return {
+        get_data_from_search_film: (data) => dispatch(actions.get_data_from_search_film(data)),
+    };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(header));

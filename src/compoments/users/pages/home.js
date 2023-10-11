@@ -4,26 +4,64 @@ import { withRouter } from 'react-router-dom';
 import Carousel from "react-multi-carousel";
 import { Button } from 'antd';
 import "react-multi-carousel/lib/styles.css";
+import { getListFilm } from '../../../services/filmServices';
 class home extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            dataNew: [
-                { id: 1, name: 'Cuộc Chiến Sinh Tồn', img: '1.jpg', },
-                { id: 2, name: 'Ma Búp bê', img: '2.jpg', },
-                { id: 3, name: 'GenV', img: '3.jpg', },
-                { id: 4, name: 'Loki: Phân 2', img: '4.jpg', },
-                { id: 5, name: 'Dinh Thự Ma Ám', img: '5.jpg', },
-                { id: 6, name: 'Ba Lê tử Thần', img: '6.jpg', },
-                { id: 7, name: 'Luân Phiên', img: '7.jpg', },
-                { id: 8, name: 'Xã hội trung niên thầm kín, hãy là chính mình', img: '8.jpg', },
-            ],
+            dataFilms: [],
+            dataActions: [],
+            dataHorrors: [],
+            dataRomances: [],
+            dataComedys: [],
         }
     }
     async componentDidMount() {
+        await this.getListFilm();
+    }
+    getListFilm = async () => {
+        try {
+            let data = await getListFilm();
+            if (data && data.data && data.data.success == 1) {
+                let dataRaw = data.data.data;
+                let dataActions = [];
+                let dataHorrors = [];
+                let dataRomances = [];
+                let dataComedys = [];
+                for (const i of dataRaw) {
+                    if (i && i.category && i.category.code == 1) {
+                        dataActions.push(i);
+                    }
+                    if (i && i.category && i.category.code == 2) {
+                        dataHorrors.push(i);
+                    }
+                    if (i && i.category && i.category.code == 3) {
+                        dataRomances.push(i);
+                    }
+                    if (i && i.category && i.category.code == 4) {
+                        dataComedys.push(i);
+                    }
+                }
+                let dataFilms = dataRaw.slice(9, 20)
+                this.setState({
+                    dataFilms: dataFilms,
+                    dataActions: dataActions,
+                    dataComedys: dataComedys,
+                    dataHorrors: dataHorrors,
+                    dataRomances: dataRomances,
+                })
+            } else {
+                return this.setState({ dataFilms: [] })
+            }
+        } catch (e) {
+            console.log('Lỗi', e);
+        }
     }
     onClickPage = (id) => {
-        this.props.history.push(`home/product/${id}`)
+        this.props.history.push(`home/product_detail/${id}`)
+    }
+    onClickMore = (id) => {
+        this.props.history.push(`home/product_category/${id}`)
     }
     render() {
         const responsive = {
@@ -32,23 +70,27 @@ class home extends React.Component {
             tablet: { breakpoint: { max: 1024, min: 640 }, items: 3, slidesToSlide: 3 },
             mobile: { breakpoint: { max: 640, min: 300 }, items: 2, slidesToSlide: 2 }
         };
-        let dataNew = this.state.dataNew;
+        let dataFilms = this.state.dataFilms;
+        let dataActions = this.state.dataActions;
+        let dataComedys = this.state.dataComedys;
+        let dataHorrors = this.state.dataHorrors;
+        let dataRomances = this.state.dataRomances;
         return (
             <div className='px-[10px] sm:px-[60px] lg:px-[100px] py-[20px] space-y-[30px] bg-[#1a1a1a]'>
                 <div className='bg-[#0c0c0c] p-[20px] rounded-[5px] space-y-[10px] text-white'>
                     <div className='flex items-center justify-between text-[16px] font-[600]'>
-                        <div><label className='text-[#06ccd1] font-[500] uppercase text-[12px] sm:text-[16px] '>PHIM MỚI NHẤT</label></div>
-                        <Button type='default' className='text-white'>XEM THÊM</Button>
+                        <div><label className='text-[#06ccd1] font-[500] uppercase text-[12px] sm:text-[16px] '>PHIM MỚI</label></div>
+                        <Button onClick={() => this.onClickMore(0)} type='default' className='text-white'>XEM THÊM</Button>
                     </div>
                     <Carousel responsive={responsive} autoPlay={true} swipeable={true} draggable={true} showDots={true}
                         infinite={true} partialVisible={false} dotListClass="custom-dot-list-style">
-                        {dataNew && dataNew.map((item, index) => {
+                        {dataFilms && dataFilms.map((item, index) => {
                             return (
-                                <div key={item.id} onClick={() => this.onClickPage(item.id)}
-                                    className="slider p-[5px] space-y-[10px] cursor-pointer text-[14px] " >
+                                <div key={item.code} onClick={() => this.onClickPage(item.code)}
+                                    className="slider p-[5px] space-y-[10px] cursor-pointer text-[14px]  " >
                                     <div className='relative text-white '>
-                                        {item && item.img &&
-                                            <img src={require(`../../../assets/images/${item.img}`).default} alt="movie"
+                                        {item && item.image &&
+                                            <img src={require(`../../../assets/images/${item.image}`).default} alt="movie"
                                                 className='h-[250px] sm:h-[300px] w-full rounded-[5px]' />
                                         }
                                         <div className='absolute top-[10px] left-0 '>
@@ -65,18 +107,46 @@ class home extends React.Component {
                 </div>
                 <div className='bg-[#0c0c0c] p-[20px] rounded-[5px] space-y-[10px] text-white'>
                     <div className='flex items-center justify-between text-[16px] font-[600]'>
-                        <div><label className='text-[#06ccd1] font-[500] uppercase text-[12px] sm:text-[16px] '>PHIM KINH DỊ</label></div>
-                        <Button type='default' className='text-white'>XEM THÊM</Button>
+                        <div><label className='text-[#06ccd1] font-[500] uppercase text-[12px] sm:text-[16px] '>PHIM HÀNh ĐỘNG</label></div>
+                        <Button onClick={() => this.onClickMore(1)} type='default' className='text-white'>XEM THÊM</Button>
                     </div>
                     <Carousel responsive={responsive} autoPlay={true} swipeable={true} draggable={true} showDots={true}
                         infinite={true} partialVisible={false} dotListClass="custom-dot-list-style">
-                        {dataNew && dataNew.map((item, index) => {
+                        {dataActions && dataActions.map((item, index) => {
                             return (
-                                <div key={item.id} onClick={() => this.onClickPage(item.id)}
+                                <div key={item.code} onClick={() => this.onClickPage(item.code)}
                                     className="slider p-[5px] space-y-[10px] cursor-pointer text-[14px]  " >
                                     <div className='relative text-white '>
-                                        {item && item.img &&
-                                            <img src={require(`../../../assets/images/${item.img}`).default} alt="movie"
+                                        {item && item.image &&
+                                            <img src={require(`../../../assets/images/${item.image}`).default} alt="movie"
+                                                className='h-[250px] sm:h-[300px] w-full rounded-[5px]' />
+                                        }
+                                        <div className='absolute top-[10px] left-0 '>
+                                            <span className='bg-[#f9bb17] py-[5px] px-[10px] font-[600]'>HÀNH ĐỘNG</span>
+                                        </div>
+                                    </div>
+                                    <div className='truncate'>
+                                        <label className='font-[500] text-[#f9bb17]'>{item.name}</label>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </Carousel>
+                </div>
+                <div className='bg-[#0c0c0c] p-[20px] rounded-[5px] space-y-[10px] text-white'>
+                    <div className='flex items-center justify-between text-[16px] font-[600]'>
+                        <div><label className='text-[#06ccd1] font-[500] uppercase text-[12px] sm:text-[16px] '>PHIM KINH DỊ</label></div>
+                        <Button onClick={() => this.onClickMore(2)} type='default' className='text-white'>XEM THÊM</Button>
+                    </div>
+                    <Carousel responsive={responsive} autoPlay={true} swipeable={true} draggable={true} showDots={true}
+                        infinite={true} partialVisible={false} dotListClass="custom-dot-list-style">
+                        {dataHorrors && dataHorrors.map((item, index) => {
+                            return (
+                                <div key={item.code} onClick={() => this.onClickPage(item.code)}
+                                    className="slider p-[5px] space-y-[10px] cursor-pointer text-[14px]  " >
+                                    <div className='relative text-white '>
+                                        {item && item.image &&
+                                            <img src={require(`../../../assets/images/${item.image}`).default} alt="movie"
                                                 className='h-[250px] sm:h-[300px] w-full rounded-[5px]' />
                                         }
                                         <div className='absolute top-[10px] left-0 '>
@@ -93,22 +163,50 @@ class home extends React.Component {
                 </div>
                 <div className='bg-[#0c0c0c] p-[20px] rounded-[5px] space-y-[10px] text-white'>
                     <div className='flex items-center justify-between text-[16px] font-[600]'>
-                        <div><label className='text-[#06ccd1] font-[500] uppercase text-[12px] sm:text-[16px] '>PHIM HÀNH ĐỘNG</label></div>
-                        <Button type='default' className='text-white'>XEM THÊM</Button>
+                        <div><label className='text-[#06ccd1] font-[500] uppercase text-[12px] sm:text-[16px] '>PHIM TÌNH CẢM</label></div>
+                        <Button onClick={() => this.onClickMore(3)} type='default' className='text-white'>XEM THÊM</Button>
                     </div>
                     <Carousel responsive={responsive} autoPlay={true} swipeable={true} draggable={true} showDots={true}
                         infinite={true} partialVisible={false} dotListClass="custom-dot-list-style">
-                        {dataNew && dataNew.map((item, index) => {
+                        {dataRomances && dataRomances.map((item, index) => {
                             return (
-                                <div key={item.id} onClick={() => this.onClickPage(item.id)}
+                                <div key={item.id} onClick={() => this.onClickPage(item.code)}
                                     className="slider p-[5px] space-y-[10px] cursor-pointer text-[14px]  " >
                                     <div className='relative text-white '>
-                                        {item && item.img &&
-                                            <img src={require(`../../../assets/images/${item.img}`).default} alt="movie"
+                                        {item && item.image &&
+                                            <img src={require(`../../../assets/images/${item.image}`).default} alt="movie"
                                                 className='h-[250px] sm:h-[300px] w-full rounded-[5px]' />
                                         }
                                         <div className='absolute top-[10px] left-0 '>
-                                            <span className='bg-[#f9bb17] py-[5px] px-[10px] font-[600]'>HÀNH ĐỘNG</span>
+                                            <span className='bg-[#f9bb17] py-[5px] px-[10px] font-[600]'>TÌNH CẢM</span>
+                                        </div>
+                                    </div>
+                                    <div className='truncate'>
+                                        <label className='font-[500] text-[#f9bb17]'>{item.name}</label>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </Carousel>
+                </div>
+                <div className='bg-[#0c0c0c] p-[20px] rounded-[5px] space-y-[10px] text-white'>
+                    <div className='flex items-center justify-between text-[16px] font-[600]'>
+                        <div><label className='text-[#06ccd1] font-[500] uppercase text-[12px] sm:text-[16px] '>PHIM HÀI HƯỚC</label></div>
+                        <Button onClick={() => this.onClickMore(4)} type='default' className='text-white'>XEM THÊM</Button>
+                    </div>
+                    <Carousel responsive={responsive} autoPlay={true} swipeable={true} draggable={true} showDots={true}
+                        infinite={true} partialVisible={false} dotListClass="custom-dot-list-style">
+                        {dataComedys && dataComedys.map((item, index) => {
+                            return (
+                                <div key={item.id} onClick={() => this.onClickPage(item.code)}
+                                    className="slider p-[5px] space-y-[10px] cursor-pointer text-[14px]  " >
+                                    <div className='relative text-white '>
+                                        {item && item.image &&
+                                            <img src={require(`../../../assets/images/${item.image}`).default} alt="movie"
+                                                className='h-[250px] sm:h-[300px] w-full rounded-[5px]' />
+                                        }
+                                        <div className='absolute top-[10px] left-0 '>
+                                            <span className='bg-[#f9bb17] py-[5px] px-[10px] font-[600]'>HÀI HƯỚC</span>
                                         </div>
                                     </div>
                                     <div className='truncate'>

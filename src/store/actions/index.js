@@ -1,1 +1,2 @@
-export * from './testActions'
+export * from './testActions';
+export * from './filmActions';

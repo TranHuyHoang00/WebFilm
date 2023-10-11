@@ -5,6 +5,8 @@ const actionTypes = Object.freeze({
 
     TEST_DATA: 'TEST_DATA',
     TEST_SUCCESS_DATA: "TEST_SUCCESS_DATA",
+
+    GET_DATA_FROM_SEARCH_FILM: "GET_DATA_FROM_SEARCH_FILM",
 })
 
 export default actionTypes;

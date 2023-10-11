@@ -6,6 +6,7 @@ import { AiFillEdit, AiFillDelete, AiFillEye } from "react-icons/ai";
 import { withRouter } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { CloseSquareFilled, DeleteOutlined } from '@ant-design/icons';
+import { getListFilm } from '../../../services/filmServices';
 
 class film extends Component {
     constructor(props) {
@@ -15,44 +16,29 @@ class film extends Component {
             isOpenFormDetail: false,
             isOpenFormEdit: false,
             dataFilm: {},
-            dataFilms: [
-                { id: 1, name: 'Cuộc Chiến Sinh Tồn', img: '1.jpg', },
-                { id: 2, name: 'Ma Búp bê', img: '2.jpg', },
-                { id: 3, name: 'GenV', img: '3.jpg', },
-                { id: 4, name: 'Loki: Phân 2', img: '4.jpg', },
-                { id: 5, name: 'Dinh Thự Ma Ám', img: '5.jpg', },
-                { id: 6, name: 'Ba Lê tử Thần', img: '6.jpg', },
-                { id: 7, name: 'Luân Phiên', img: '7.jpg', },
-                { id: 8, name: 'Xã hội trung niên thầm kín, hãy là chính mình', img: '8.jpg', },
-                { id: 9, name: 'Luân Phiên', img: '7.jpg', },
-            ],
+            dataFilms: [],
             idFilm: '',
             dataSearch: [],
         }
     }
     async componentDidMount() {
-        //await this.getListFilm();
+        await this.getListFilm();
     }
-    // getListFilm = async () => {
-    //     try {
-    //         let data = await getListFilm();
-    //         if (data && data.data && data.data.success == 1) {
-    //             let dataRaw = data.data.data;
-    //             let dataFilter = [];
-    //             for (const i of dataRaw) {
-    //                 const obj = {};
-    //                 obj.key = i.id;
-    //                 obj.value = i.name;
-    //                 dataFilter.push(obj);
-    //             }
-    //             this.setState({ dataFilms: data.data.data, dataSearch: dataFilter })
-    //         } else {
-    //             this.setState({ dataFilms: {} })
-    //         }
-    //     } catch (e) {
-    //         console.log('Lỗi', e);
-    //     }
-    // }
+    getListFilm = async () => {
+        try {
+            let data = await getListFilm();
+            if (data && data.data && data.data.success == 1) {
+                let dataRaw = data.data.data;
+                this.setState({
+                    dataFilms: dataRaw,
+                })
+            } else {
+                return this.setState({ dataFilms: [] })
+            }
+        } catch (e) {
+            console.log('Lỗi', e);
+        }
+    }
     // getFilm = async (id) => {
     //     try {
     //         let data = await getFilm(id);
@@ -117,16 +103,16 @@ class film extends Component {
         //await this.getListFilm()
     }
     render() {
-        let dataFilm = this.state.dataFilm;
+        let dataFilms = this.state.dataFilms;
+        let dataFilm = this.state.dataFilm
         const columns = [
             {
-                title: 'Id', dataIndex: 'id', responsive: ['md'], width: 100,
-                sorter: (a, b) => a.id - b.id,
+                title: 'Id', dataIndex: 'code', responsive: ['md'], width: 100,
+                sorter: (a, b) => a.code - b.code,
             },
             {
-                title: 'Ảnh', dataIndex: 'img', responsive: ['md'],
-                render: (img) => <img src={require(`../../../assets/images/${img}`).default}
-                    className='h-[100px] w-[80px]' />,
+                title: 'Ảnh', dataIndex: 'image', responsive: ['md'],
+                render: (image) => <img src={require(`../../../assets/images/${image}`).default} className='h-[100px] w-[80px]' />,
             },
             {
                 title: 'Tên', dataIndex: 'name',
@@ -161,7 +147,7 @@ class film extends Component {
                             allowClear
                         />
                     </div>
-                    <Divider>NGƯỜI MUA</Divider>
+                    <Divider>PHIM</Divider>
                     <Table columns={columns} dataSource={this.state.dataFilms}
                         size="small" bordered
                         pagination={{ pageSize: 7, }}
