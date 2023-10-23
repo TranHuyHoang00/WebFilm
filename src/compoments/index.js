@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Switch, Route, Redirect } from "react-router-dom";
 import { withRouter } from 'react-router-dom';
-import { GetLocal_AcountAdmin } from '../auths/localStorage';
+import { Get_Local_Acount_DB } from '../auths/local_storage';
 
 import Err_Page_NotFound from './pages_Err/err_Page_NotFound';
 import User from './users/index';
@@ -18,7 +18,7 @@ class index extends Component {
         }
     }
     async componentDidMount() {
-        let dataLogin = GetLocal_AcountAdmin();
+        let dataLogin = Get_Local_Acount_DB();
         if (dataLogin && dataLogin.data && dataLogin.data.access) {
             this.setState({ dataAcount: dataLogin.data.user, isLogin: true })
         } else { this.setState({ dataAcount: {} }) }

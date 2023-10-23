@@ -5,7 +5,7 @@ import Carousel from "react-multi-carousel";
 import { Button, Rate, Image, Avatar, Input } from 'antd';
 import { AiTwotoneCalendar, AiTwotoneLike, AiTwotoneDislike, AiFillStar } from "react-icons/ai";
 import { getFilm, getListFilm, CreateComment, TrainComment } from '../../../services/filmServices';
-import { GetLocal_AcountUser } from '../../../auths/localStorage';
+import { Get_Local_Acount_User } from '../../../auths/local_storage';
 import { toast } from 'react-toastify';
 class product_detail extends Component {
     constructor(props) {
@@ -13,9 +13,9 @@ class product_detail extends Component {
         this.state = {
             dataFilm: {},
             dataFilms: [],
-            dataAcount: null,
+            dataAcount: {},
             categoryFilm: null,
-            dataFilmsRecommended: null,
+            dataFilmsRecommended: [],
             dataComment: {
                 rate: 5,
                 category: 1,
@@ -25,7 +25,7 @@ class product_detail extends Component {
     }
     async componentDidMount() {
         if (this.props.match && this.props.match.params) {
-            let dataLogin = GetLocal_AcountUser();
+            let dataLogin = Get_Local_Acount_User();
             let id = this.props.match.params.id;
             this.setState({ idFilm: id })
             await this.getFilm(id);
@@ -40,13 +40,12 @@ class product_detail extends Component {
             let data = await getFilm(id);
             if (data && data.data && data.data.success == 1) {
                 let dataRaw = data.data.data;
-                console.log(dataRaw);
                 this.setState({
                     dataFilm: dataRaw,
                     categoryFilm: dataRaw.category_train.code
                 })
             } else {
-                return this.setState({ dataFilm: null })
+                this.setState({ dataFilm: {} })
             }
         } catch (e) {
             console.log('Lỗi', e);
@@ -64,20 +63,13 @@ class product_detail extends Component {
                         dataFilterCategoty.push(i);
                     }
                 }
-                let dataFilterRate = [];
-                for (const i of dataFilterCategoty) {
-                    let film = i;
-                    let rate = this.rate_Calculation(i.comment);
-                    film.total_rate = rate;
-                    dataFilterRate.push(film);
-                }
-                dataFilterRate.sort((a, b) => b.total_rate - a.total_rate);
-                let dataFilmsRecommended = dataFilterRate.slice(0, 9)
+                dataFilterCategoty.sort((a, b) => b.rate - a.rate);
+                let dataFilmsRecommended = dataFilterCategoty.slice(0, 9)
                 let dataFilms = dataFilterCategoty.slice(0, 9);
-                return this.setState({ dataFilms: dataFilms, dataFilmsRecommended: dataFilmsRecommended })
+                this.setState({ dataFilms: dataFilms, dataFilmsRecommended: dataFilmsRecommended })
 
             } else {
-                return this.setState({ dataFilms: [] })
+                this.setState({ dataFilms: [] })
             }
         } catch (e) {
             console.log('Lỗi', e);
@@ -86,15 +78,6 @@ class product_detail extends Component {
     onClickPage = async (id) => {
         await this.getFilm(id);
         this.props.history.push(`/home/product_detail/${id}`)
-    }
-    rate_Calculation = (comments) => {
-        let averageRating = 0;
-        if (comments && comments.length !== 0) {
-            const totalRating = comments.reduce((acc, comment) => acc + comment.rate, 0);
-            averageRating = totalRating / comments.length;
-
-        }
-        return averageRating;
     }
     handleOnChangeInput = (event, id) => {
         let copyState = { ...this.state.dataComment };
@@ -171,13 +154,13 @@ class product_detail extends Component {
                     <div className=' col-span-3 space-y-[10px]'>
                         <div className='bg-[#0c0c0c] p-[10px] sm:p-[20px] rounded-[5px] truncate'>
                             <label className='text-[#06ccd1] font-[500] uppercase text-[12px] sm:text-[16px]'>
-                                Trang chủ / phim / {dataFilm && dataFilm.name}
+                                Trang chủ / phim / {dataFilm.name}
                             </label>
                         </div>
                         <div className='block sm:grid sm:grid-cols-2 md:grid-cols-3 gap-[20px] space-y-[10px] sm:space-y-[0px]'>
                             <div className='bg-[#0c0c0c] p-[20px] space-y-[10px] rounded-[5px]'>
                                 <div className='flex items-center justify-center'>
-                                    <img className='rounded-[5px] w-[250px] sm:w-full h-full' src={require(`../../../assets/images/${dataFilm && dataFilm.image ? dataFilm.image : '1.jpg'}`).default} alt="movie" />
+                                    <img className='rounded-[5px] w-[250px] sm:w-full h-full' src={require(`../../../assets/images/${dataFilm.image ? dataFilm.image : '1.jpg'}`).default} alt="movie" />
                                 </div>
                                 <div className='flex items-center justify-center '>
                                     <Button type='default' className='bg-[#15bb37] text-white font-[600]'>XEM PHIM</Button>
@@ -185,12 +168,12 @@ class product_detail extends Component {
                             </div>
                             <div className='md:col-span-2 bg-[#0c0c0c] p-[20px] rounded-[5px] space-y-[10px] sm:space-y-[20px]'>
                                 <div className=''>
-                                    <label className='text-[#f9bb17] text-[20px] sm:text-[22px] font-[600] uppercase'>{dataFilm && dataFilm.name}</label>
+                                    <label className='text-[#f9bb17] text-[20px] sm:text-[22px] font-[600] uppercase'>{dataFilm.name}</label>
                                 </div>
                                 <div className=' text-white text-[14px] md:text-[16px] space-y-[8px]'>
                                     <div className='space-x-[5px] flex items-center'>
                                         <label className=''>Tổng đánh giá :</label>
-                                        <span className='text-[#06ccd1]'>{(this.rate_Calculation(dataFilm.comment)).toFixed(1)} </span>
+                                        <span className='text-[#06ccd1]'>{dataFilm.rate} </span>
                                         <AiFillStar className='text-yellow-300' />
                                     </div>
                                     <div className='space-x-[5px]'>
@@ -199,27 +182,27 @@ class product_detail extends Component {
                                     </div>
                                     <div className='space-x-[5px]'>
                                         <label className=''>Thể loại :</label>
-                                        <span className='text-white bg-[#15bb37] px-[4px] py-[2px] rounded-[2px] font-[600]'>{dataFilm && dataFilm.category && dataFilm.category.name}</span>
+                                        <span className='text-white bg-[#15bb37] px-[4px] py-[2px] rounded-[2px] font-[600]'>{dataFilm.category && dataFilm.category.name}</span>
                                     </div>
                                     <div className='space-x-[5px]'>
                                         <label className=''>Thể loại - người dùng :</label>
-                                        <span className='text-white bg-[#15bb37] px-[4px] py-[2px] rounded-[2px] font-[600]'>{dataFilm && dataFilm.category_train ? dataFilm.category_train.name : 'None'}</span>
+                                        <span className='text-white bg-[#15bb37] px-[4px] py-[2px] rounded-[2px] font-[600]'>{dataFilm.category_train ? dataFilm.category_train.name : 'None'}</span>
                                     </div>
                                     <div className='space-x-[5px]'>
                                         <label className=''>Năm sản xuất :</label>
-                                        <span className='text-[#06ccd1]'>{dataFilm && dataFilm.year_of_manufacture}</span>
+                                        <span className='text-[#06ccd1]'>{dataFilm.year_of_manufacture}</span>
                                     </div>
                                     <div className='space-x-[5px]'>
                                         <label className=''>Quốc gia :</label>
-                                        <span className='text-[#06ccd1]'>{dataFilm && dataFilm.country}</span>
+                                        <span className='text-[#06ccd1]'>{dataFilm.country}</span>
                                     </div>
                                     <div className='space-x-[5px]'>
                                         <label className=''>Thời lượng :</label>
-                                        <span className='text-[#06ccd1]'>{dataFilm && dataFilm.duration} phút</span>
+                                        <span className='text-[#06ccd1]'>{dataFilm.duration} phút</span>
                                     </div>
                                     <div className='space-x-[5px]'>
                                         <label className=''>Lượt xem :</label>
-                                        <span className='text-[#06ccd1]'>{`${Math.floor(Math.random() * (10000000 - 0 + 1)) + 0}`.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')} lượt xem</span>
+                                        <span className='text-[#06ccd1]'>{`${902110}`.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')} lượt xem</span>
                                     </div>
                                     <div className='space-x-[5px]'>
                                         <label className=''>Chất lượng :</label>
@@ -232,7 +215,7 @@ class product_detail extends Component {
                                     <div className='space-x-[5px]'>
                                         <label className=''>Ngày cập nhập :</label>
                                         <span className='text-[#06ccd1]'>
-                                            {Math.floor(Math.random() * (31 - 1 + 1)) + 1}/{Math.floor(Math.random() * (12 - 1 + 1)) + 1}/{Math.floor(Math.random() * (2023 - 2015 + 1)) + 2015}
+                                            {dataFilm.updated_at}
                                         </span>
                                     </div>
                                 </div>
@@ -244,7 +227,7 @@ class product_detail extends Component {
                             <div><label className='text-[#f9bb17] text-[14px] sm:text-[16px] font-[600]'>NỘI DUNG PHIM</label></div>
                             <div className='text-white'>
                                 <span >
-                                    {dataFilm && dataFilm.content}
+                                    {dataFilm.content}
                                 </span>
                             </div>
                         </div>
@@ -299,14 +282,14 @@ class product_detail extends Component {
                                         <div key={item.code} className=' bg-white p-[10px] rounded-[5px] space-y-[5px]'>
                                             <div className='flex items-center justify-between space-x-[5px] sm:space-x-[10px]'>
                                                 <div className='flex items-center space-x-[10px]'>
-                                                    <Avatar size={50} className=' bg-green-500' >{item && item.user && item.user.first_name}</Avatar>
+                                                    <Avatar size={50} className=' bg-green-500' >{item.user && item.user.first_name}</Avatar>
                                                     <div>
-                                                        <div className='text-[#4d6aa4] font-[700]'><label>{item && item.user && item.user.first_name} {item && item.user && item.user.last_name}</label></div>
+                                                        <div className='text-[#4d6aa4] font-[700]'><label>{item.user && item.user.first_name} {item.user && item.user.last_name}</label></div>
                                                         <Rate disabled defaultValue={item.rate} className='text-[14px]' />
                                                         <div className='flex sm:hidden items-center space-x-[10px] '>
                                                             <AiTwotoneCalendar />
                                                             <label>
-                                                                {Math.floor(Math.random() * (31 - 1 + 1)) + 1}/{Math.floor(Math.random() * (12 - 1 + 1)) + 1}/{Math.floor(Math.random() * (2023 - 2015 + 1)) + 2015}
+                                                                {item.created_at}
                                                             </label>
                                                         </div>
                                                     </div>
@@ -314,7 +297,7 @@ class product_detail extends Component {
                                                 <div className='hidden sm:flex items-center space-x-[10px] '>
                                                     <AiTwotoneCalendar />
                                                     <label>
-                                                        {Math.floor(Math.random() * (31 - 1 + 1)) + 1}/{Math.floor(Math.random() * (12 - 1 + 1)) + 1}/{Math.floor(Math.random() * (2023 - 2015 + 1)) + 2015}
+                                                        {item.created_at}
                                                     </label>
                                                 </div>
                                             </div>
@@ -322,22 +305,15 @@ class product_detail extends Component {
                                                 <label>{item.content}</label>
                                             </div>
                                             <div className='flex items-center space-x-[10px]'>
-                                                <Button size='small' danger className='flex items-center space-x-[5px]'>
-                                                    {Math.floor(Math.random() * (1000 - 0 + 1)) + 0}
-                                                    <AiTwotoneLike />
-                                                </Button>
-                                                <Button size='small' danger className='flex items-center space-x-[5px]'>
-                                                    {Math.floor(Math.random() * (100 - 0 + 1)) + 0}
-                                                    <AiTwotoneDislike />
-                                                </Button>
-                                                <Button size='small' className='bg-red-400 text-white'>{item && item.category && item.category.name}</Button>
+
+                                                <Button size='small' className='bg-red-400 text-white'>{item.category && item.category.name}</Button>
                                             </div>
                                         </div>
                                     )
                                 })}
                             </div>
                         </div>
-                        {/* Carousel */}
+                        {/* Same category movie */}
                         <div className='bg-[#0c0c0c] p-[20px] rounded-[5px] space-y-[10px] text-white'>
                             <div className='flex items-center justify-between text-[16px] font-[600]'>
                                 <div><label className='text-[#06ccd1] font-[500] uppercase text-[12px] sm:text-[16px] '>CÙNG THỂ LOẠI</label></div>
@@ -355,7 +331,7 @@ class product_detail extends Component {
                                                         className='h-[250px] sm:h-[300px] w-full rounded-[5px]' />
                                                 }
                                                 <div className='absolute top-[10px] left-0 '>
-                                                    <span className='bg-[#f9bb17] py-[5px] px-[10px] font-[600]'>{item && item.category && item.category.name}</span>
+                                                    <span className='bg-[#f9bb17] py-[5px] px-[10px] font-[600]'>{item.category && item.category.name}</span>
                                                 </div>
                                             </div>
                                             <div className='truncate'>
@@ -376,7 +352,7 @@ class product_detail extends Component {
                         </div>
                         {dataFilmsRecommended && dataFilmsRecommended.map((item, index) => {
                             return (
-                                <div key={item.id} onClick={() => this.onClickPage(item.code)}
+                                <div key={item.code} onClick={() => this.onClickPage(item.code)}
                                     className='bg-[#0c0c0c] text-white p-[20px] rounded-[5px] space-y-[10px] cursor-pointer'>
                                     <div className='flex items-center justify-start rounded-[5px] space-x-[10px]'>
                                         <div className='h-[100px] w-[70px]'>
@@ -384,9 +360,9 @@ class product_detail extends Component {
                                         </div>
                                         <div className='space-y-[4px]'>
                                             <div> <label className='text-[28px]  font-[500] italic'>Top {index + 1}</label></div>
-                                            <div><span className='text-white bg-[#15bb37] px-[4px] py-[2px] rounded-[2px] font-[600]'>{item && item.category && item.category.name}</span></div>
+                                            <div><span className='text-white bg-[#15bb37] px-[4px] py-[2px] rounded-[2px] font-[600]'>{item.category && item.category.name}</span></div>
                                             <div className='flex items-center space-x-[4px]'>
-                                                <span className='text-[#06ccd1]'>{(item.total_rate).toFixed(1)} </span>
+                                                <span className='text-[#06ccd1]'>{(item.rate).toFixed(2)} </span>
                                                 <AiFillStar className='text-yellow-300' />
                                             </div>
                                         </div>

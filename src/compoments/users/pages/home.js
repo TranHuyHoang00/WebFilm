@@ -122,7 +122,7 @@ class home extends React.Component {
                                                 className='h-[250px] sm:h-[300px] w-full rounded-[5px]' />
                                         }
                                         <div className='absolute top-[10px] left-0 '>
-                                            <span className='bg-[#f9bb17] py-[5px] px-[10px] font-[600]'>HÀNH ĐỘNG</span>
+                                            <span className='bg-[#f9bb17] py-[5px] px-[10px] font-[600] uppercase'>{item && item.category && item.category.name}</span>
                                         </div>
                                     </div>
                                     <div className='truncate'>
@@ -150,7 +150,7 @@ class home extends React.Component {
                                                 className='h-[250px] sm:h-[300px] w-full rounded-[5px]' />
                                         }
                                         <div className='absolute top-[10px] left-0 '>
-                                            <span className='bg-[#f9bb17] py-[5px] px-[10px] font-[600]'>KINH DỊ</span>
+                                            <span className='bg-[#f9bb17] py-[5px] px-[10px] font-[600] uppercase'>{item && item.category && item.category.name}</span>
                                         </div>
                                     </div>
                                     <div className='truncate'>
@@ -178,7 +178,7 @@ class home extends React.Component {
                                                 className='h-[250px] sm:h-[300px] w-full rounded-[5px]' />
                                         }
                                         <div className='absolute top-[10px] left-0 '>
-                                            <span className='bg-[#f9bb17] py-[5px] px-[10px] font-[600]'>TÌNH CẢM</span>
+                                            <span className='bg-[#f9bb17] py-[5px] px-[10px] font-[600] uppercase'>{item && item.category && item.category.name}</span>
                                         </div>
                                     </div>
                                     <div className='truncate'>
@@ -206,7 +206,7 @@ class home extends React.Component {
                                                 className='h-[250px] sm:h-[300px] w-full rounded-[5px]' />
                                         }
                                         <div className='absolute top-[10px] left-0 '>
-                                            <span className='bg-[#f9bb17] py-[5px] px-[10px] font-[600]'>HÀI HƯỚC</span>
+                                            <span className='bg-[#f9bb17] py-[5px] px-[10px] font-[600] uppercase'>{item && item.category && item.category.name}</span>
                                         </div>
                                     </div>
                                     <div className='truncate'>

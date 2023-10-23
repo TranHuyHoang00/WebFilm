@@ -6,7 +6,7 @@ import { AiFillEdit, AiFillDelete, AiFillEye } from "react-icons/ai";
 import { withRouter } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { CloseSquareFilled, DeleteOutlined } from '@ant-design/icons';
-import { getListFilm } from '../../../services/filmServices';
+import { getListFilm, getFilm } from '../../../services/filmServices';
 
 class film extends Component {
     constructor(props) {
@@ -39,16 +39,21 @@ class film extends Component {
             console.log('Lỗi', e);
         }
     }
-    // getFilm = async (id) => {
-    //     try {
-    //         let data = await getFilm(id);
-    //         if (data && data.data && data.data.success == 1) {
-    //             this.setState({ dataFilm: data.data.data })
-    //         }
-    //     } catch (e) {
-    //         console.log('Lỗi', e);
-    //     }
-    // }
+    getFilm = async (id) => {
+        try {
+            let data = await getFilm(id);
+            if (data && data.data && data.data.success == 1) {
+                let dataRaw = data.data.data;
+                this.setState({
+                    dataFilm: dataRaw,
+                })
+            } else {
+                this.setState({ dataFilm: {} })
+            }
+        } catch (e) {
+            console.log('Lỗi', e);
+        }
+    }
     handleOnchangeInput = (event, id) => {
         let copyState = { ...this.state.dataFilm };
         copyState[id] = event.target.value;
@@ -61,11 +66,13 @@ class film extends Component {
     openForm = async (name, value, id) => {
         if (name == 'create') { this.setState({ isOpenFormCreate: value }) }
         if (name == 'detail') {
+
             if (id == null) {
-                this.setState({ isOpenFormDetail: value });
+                //this.setState({ isOpenFormDetail: value });
             } else {
-                this.setState({ isOpenFormDetail: value });
+                //this.setState({ isOpenFormDetail: value });
                 //await this.getFilm(id);
+                this.props.history.push(`/home/product_detail/${id}`)
             }
         }
         if (name == 'edit') {
@@ -173,43 +180,15 @@ class film extends Component {
                             </div>
                         </div>
                     </Modal>
-                    <Modal title="Chi tiết" open={this.state.isOpenFormDetail}
+                    {/* <Modal title="Chi tiết" open={this.state.isOpenFormDetail}
                         okText={'Xác nhận'} okType={'default'} cancelText={'Hủy bỏ'}
                         onOk={() => this.openForm('detail', false, null)}
                         onCancel={() => this.openForm('detail', false, null)}
                         width={300}
                     >
                         <div className='space-y-[10px]'>
-                            <div>
-                                <label>Id<span className='text-red-500'> *</span></label>
-                                <Input value={dataFilm.id} />
-                            </div>
-                            <div>
-                                <label>Họ tên<span className='text-red-500'> *</span></label>
-                                <Input value={dataFilm.name} />
-                            </div>
-                            <div>
-                                <label>Mã sinh viên<span className='text-red-500'> *</span></label>
-                                <Input value={dataFilm.student_id} />
-                            </div>
-                            <div>
-                                <label>Email<span className='text-red-500'> *</span></label>
-                                <Input value={dataFilm.email} />
-                            </div>
-                            <div>
-                                <label>Số điện thoại<span className='text-red-500'> *</span></label>
-                                <Input value={dataFilm.phone_number} />
-                            </div>
-                            <div>
-                                <label>Ngày tạo<span className='text-red-500'> *</span></label>
-                                <Input value={dataFilm.created_at} />
-                            </div>
-                            <div>
-                                <label>Ngày cập nhập<span className='text-red-500'> *</span></label>
-                                <Input value={dataFilm.updated_at} />
-                            </div>
                         </div>
-                    </Modal>
+                    </Modal> */}
                     <Modal title="Chỉnh sửa" open={this.state.isOpenFormEdit}
                         okText={'Xác nhận'} okType={'default'} cancelText={'Hủy bỏ'}
                         onOk={() => this.handleEdit(this.state.idFilm)}

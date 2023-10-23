@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import { Button, Input } from 'antd';
 import { connect } from 'react-redux';
 import * as actions from '../../../store/actions';
 import { getListFilm } from '../../../services/filmServices';
@@ -28,7 +27,6 @@ class product_category extends Component {
             if (data && data.data && data.data.success == 1) {
                 let dataRaw = data.data.data;
                 let dataFilterCategoty = [];
-                let dataFilterRate = [];
                 if (id == 0) {
                     dataFilterCategoty = dataRaw;
                 } else {
@@ -38,29 +36,14 @@ class product_category extends Component {
                         }
                     }
                 }
-                for (const i of dataFilterCategoty) {
-                    let film = i;
-                    let rate = this.rate_Calculation(i.comment);
-                    film.total_rate = rate;
-                    dataFilterRate.push(film);
-                }
-                dataFilterRate.sort((a, b) => b.total_rate - a.total_rate);
-                this.setState({ dataFilms: dataFilterRate })
+                dataFilterCategoty.sort((a, b) => b.rate - a.rate);
+                this.setState({ dataFilms: dataFilterCategoty })
             } else {
                 this.setState({ dataFilms: [] })
             }
         } catch (e) {
             console.log('Lỗi', e);
         }
-    }
-    rate_Calculation = (comments) => {
-        let averageRating = 0;
-        if (comments && comments.length !== 0) {
-            const totalRating = comments.reduce((acc, comment) => acc + comment.rate, 0);
-            averageRating = totalRating / comments.length;
-
-        }
-        return averageRating;
     }
     onChangeCategory = async (event) => {
         let id = event.target.value;
@@ -72,10 +55,10 @@ class product_category extends Component {
         let id = event.target.value;
         let dataRaw = this.state.dataFilms;
         if (id == 1) {
-            dataRaw.sort((a, b) => b.total_rate - a.total_rate);
+            dataRaw.sort((a, b) => b.rate - a.rate);
         }
         if (id == 2) {
-            dataRaw.sort((a, b) => a.total_rate - b.total_rate);
+            dataRaw.sort((a, b) => a.rate - b.rate);
         }
         if (id == 3) {
             dataRaw.sort((a, b) => a.name.localeCompare(b.name));
@@ -117,7 +100,7 @@ class product_category extends Component {
                     <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-[10px] gap-y-[30px]'>
                         {dataFilms && dataFilms.map((item, index) => {
                             return (
-                                <div key={item.id} onClick={() => this.onClickPage(item.id)}
+                                <div key={item.code} onClick={() => this.onClickPage(item.code)}
                                     className="slider p-[5px] space-y-[10px] cursor-pointer text-[14px] border border-[#272727] rounded-[5px]" >
                                     <div className='relative text-white '>
                                         {item && item.image &&
@@ -131,27 +114,27 @@ class product_category extends Component {
                                     </div>
                                     <div className='flex items-center justify-between'>
                                         <div className='flex items-center space-x-[4px]    font-[600]'>
-                                            <span className=''>{(item.total_rate).toFixed(1)} </span>
+                                            <span className=''>{(item.rate).toFixed(2)} </span>
                                             <AiFillStar className='text-yellow-300' />
                                         </div>
                                         {item && item.category && item.category.code == 1 &&
                                             <div>
-                                                <span className='text-white bg-[#15bb37] px-[4px] py-[2px] rounded-[2px] font-[600]'>{item && item.category && item.category.name}</span>
+                                                <span className='text-white bg-[#15bb37] px-[4px] py-[2px] rounded-[2px] font-[600]'>{item.category && item.category.name}</span>
                                             </div>
                                         }
                                         {item && item.category && item.category.code == 2 &&
                                             <div>
-                                                <span className='text-white bg-[#e73f2f] px-[4px] py-[2px] rounded-[2px] font-[600]'>{item && item.category && item.category.name}</span>
+                                                <span className='text-white bg-[#e73f2f] px-[4px] py-[2px] rounded-[2px] font-[600]'>{item.category && item.category.name}</span>
                                             </div>
                                         }
                                         {item && item.category && item.category.code == 3 &&
                                             <div>
-                                                <span className='text-white bg-[#3e41ee] px-[4px] py-[2px] rounded-[2px] font-[600]'>{item && item.category && item.category.name}</span>
+                                                <span className='text-white bg-[#3e41ee] px-[4px] py-[2px] rounded-[2px] font-[600]'>{item.category && item.category.name}</span>
                                             </div>
                                         }
                                         {item && item.category && item.category.code == 4 &&
                                             <div>
-                                                <span className='text-white bg-[#d838bd] px-[4px] py-[2px] rounded-[2px] font-[600]'>{item && item.category && item.category.name}</span>
+                                                <span className='text-white bg-[#d838bd] px-[4px] py-[2px] rounded-[2px] font-[600]'>{item.category && item.category.name}</span>
                                             </div>
                                         }
 

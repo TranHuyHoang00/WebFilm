@@ -6,7 +6,7 @@ import { UserOutlined, CaretDownOutlined, } from '@ant-design/icons';
 import { connect } from 'react-redux';
 import * as actions from '../../../store/actions';
 import { toast } from 'react-toastify';
-import { GetLocal_AcountUser, RemoveLocal_AcountUser } from '../../../auths/localStorage';
+import { Get_Local_Acount_User, Remove_Local_Acount_User } from '../../../auths/local_storage';
 const { Search } = Input;
 class header extends Component {
     constructor(props) {
@@ -18,7 +18,7 @@ class header extends Component {
         }
     }
     async componentDidMount() {
-        let dataLogin = GetLocal_AcountUser();
+        let dataLogin = Get_Local_Acount_User();
         if (dataLogin && dataLogin.data && dataLogin.data.access) {
             this.setState({ dataAcount: dataLogin.data.user })
         } else { this.setState({ dataAcount: null }) }
@@ -49,7 +49,7 @@ class header extends Component {
     }
     LogOut = () => {
         this.setState({ dataAcount: null })
-        RemoveLocal_AcountUser();
+        Remove_Local_Acount_User();
     }
     render() {
         let dataAcount = this.state.dataAcount;

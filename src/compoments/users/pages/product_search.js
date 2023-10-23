@@ -10,9 +10,10 @@ class product_search extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            dataFilms: [],
-            dataSearch: null,
-            dataFilm: []
+            dataFilmRecomended: [],
+            dataSearch: '',
+            dataFilmSearch: [],
+            label: '',
 
         }
     }
@@ -31,19 +32,59 @@ class product_search extends Component {
     }
     SearchFilm = async (text) => {
         try {
+            this.setState({ dataFilmSearch: [], dataFilmRecomended: [] })
             let data = await SearchFilm({ content: text });
+
             if (data && data.data && data.data.success == 1) {
                 let dataRaw = data.data.data;
+                let obj = dataRaw[0];
+                if (dataRaw.length == 0) {
+                    let data = [{ id: 1, name: 'Hành động' }, { id: 2, name: 'Kinh dị' }, { id: 3, name: 'Tình cảm' }, { id: 4, name: 'Hài hước' }];
+                    var randomObject = data[Math.floor(Math.random() * data.length)];
+                    console.log(randomObject);
+                    await this.getListFilm(randomObject.id);
+                    this.setState({ label: randomObject.name })
+                    return 0;
+                }
                 if (dataRaw.length == 1) {
-                    this.setState({ dataFilm: dataRaw })
+                    await this.getListFilm(obj.category_train.code);
+                    this.setState({ dataFilmSearch: dataRaw, label: obj.category_train.name })
+                    return 1;
                 } else {
+                    dataRaw.sort((a, b) => b.rate - a.rate);
                     this.setState({
-                        dataFilms: dataRaw,
+                        dataFilmRecomended: dataRaw, label: obj.category_train.name
                     })
+                    return 2;
                 }
 
             } else {
-                return this.setState({ dataFilms: [] })
+                return this.setState({ dataFilmRecomended: [] })
+            }
+        } catch (e) {
+            console.log('Lỗi', e);
+        }
+    }
+    getListFilm = async (category) => {
+        try {
+            let data = await getListFilm();
+            if (data && data.data && data.data.success == 1) {
+                let dataRaw = data.data.data;
+                let dataFilterCategoty = [];
+                if (category == 0) {
+                    dataFilterCategoty = dataRaw;
+                } else {
+                    for (const i of dataRaw) {
+                        if (i && i.category && i.category.code == category) {
+                            dataFilterCategoty.push(i);
+                        }
+                    }
+                }
+                dataFilterCategoty.sort((a, b) => b.rate - a.rate);
+                this.setState({ dataFilmRecomended: dataFilterCategoty, })
+
+            } else {
+                this.setState({ dataFilmRecomended: [] })
             }
         } catch (e) {
             console.log('Lỗi', e);
@@ -54,8 +95,9 @@ class product_search extends Component {
     }
     render() {
         let dataSearch = this.state.dataSearch;
-        let dataFilms = this.state.dataFilms;
-        let dataFilm = this.state.dataFilm;
+        let dataFilmRecomended = this.state.dataFilmRecomended;
+        let dataFilmSearch = this.state.dataFilmSearch;
+        let label = this.state.label;
         return (
             <div className='px-[10px] sm:px-[60px] lg:px-[100px] py-[20px] space-y-[10px] bg-[#1a1a1a]'>
                 <div className='bg-[#0c0c0c] p-[10px] sm:p-[20px] rounded-[5px] truncate'>
@@ -70,8 +112,8 @@ class product_search extends Component {
                         <span className='text-red-500'>{dataSearch}</span>
                     </div>
                     <div className='flex items-center justify-start space-x-[10px]'>
-                        <label className=''>Kết quả nhãn :</label>
-                        <span className='text-white bg-[#e73f2f] px-[4px] py-[2px] rounded-[2px] font-[600]'>Hành động</span>
+                        <label className=''>Kết quả nhãn : </label>
+                        <span className='text-white bg-[#e73f2f] px-[4px] py-[2px] rounded-[2px] font-[600]'>{label}</span>
                     </div>
                 </div>
                 <div className='bg-[#0c0c0c] p-[20px] rounded-[5px] space-y-[10px] text-white'>
@@ -79,7 +121,7 @@ class product_search extends Component {
                         <div><label className='text-[#06ccd1] font-[500] uppercase text-[12px] sm:text-[16px] '>PHIM TÌM KIẾM</label></div>
                     </div>
                     <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-[10px] gap-y-[30px]'>
-                        {dataFilm && dataFilm.map((item, index) => {
+                        {dataFilmSearch && dataFilmSearch.map((item, index) => {
                             return (
                                 <div key={item.id} onClick={() => this.onClickPage(item.id)}
                                     className="slider p-[5px] space-y-[10px] cursor-pointer text-[14px] border border-[#272727] rounded-[5px]" >
@@ -95,7 +137,7 @@ class product_search extends Component {
                                     </div>
                                     <div className='flex items-center justify-between'>
                                         <div className='flex items-center space-x-[4px]    font-[600]'>
-                                            {/* <span className=''>{(item.total_rate).toFixed(1)} </span> */}
+                                            {/* <span className=''>{(item.rate).toFixed(2)}</span> */}
                                             <AiFillStar className='text-yellow-300' />
                                         </div>
                                         {item && item.category && item.category.code == 1 &&
@@ -134,7 +176,7 @@ class product_search extends Component {
                         <div><label className='text-[#06ccd1] font-[500] uppercase text-[12px] sm:text-[16px] '>PHIM ĐỀ CỬ</label></div>
                     </div>
                     <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-[10px] gap-y-[30px]'>
-                        {dataFilms && dataFilms.map((item, index) => {
+                        {dataFilmRecomended && dataFilmRecomended.map((item, index) => {
                             return (
                                 <div key={item.id} onClick={() => this.onClickPage(item.id)}
                                     className="slider p-[5px] space-y-[10px] cursor-pointer text-[14px] border border-[#272727] rounded-[5px]" >
@@ -150,7 +192,7 @@ class product_search extends Component {
                                     </div>
                                     <div className='flex items-center justify-between'>
                                         <div className='flex items-center space-x-[4px]    font-[600]'>
-                                            {/* <span className=''>{(item.total_rate).toFixed(1)} </span> */}
+                                            <span className=''>{(item.rate).toFixed(2)}</span>
                                             <AiFillStar className='text-yellow-300' />
                                         </div>
                                         {item && item.category && item.category.code == 1 &&

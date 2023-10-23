@@ -1,9 +1,9 @@
-import api from '../auths/axio_Api';
+import api_user from '../auths/api_user';
 const loginUser = (data) => {
-    return api.post(`auth/api/v1/login`, data);
+    return api_user.post(`auth/api/v1/login`, data);
 }
 const registerUser = (data) => {
-    return api.post(`auth/api/v1/register`, data);
+    return api_user.post(`auth/api/v1/register`, data);
 }
 export {
     loginUser, registerUser

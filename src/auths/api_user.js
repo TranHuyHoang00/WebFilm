@@ -1,11 +1,11 @@
 import axios from 'axios';
-import { GetLocal_Token } from './localStorage';
-const api = axios.create({
+import { Get_Local_Token_Acount_User } from './local_storage';
+const api_user = axios.create({
     baseURL: `${process.env.REACT_APP_API}`,
 });
-api.interceptors.request.use(
+api_user.interceptors.request.use(
     (config) => {
-        let token = GetLocal_Token();
+        let token = Get_Local_Token_Acount_User();
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -15,7 +15,7 @@ api.interceptors.request.use(
         return Promise.reject(error);
     }
 );
-api.interceptors.response.use(
+api_user.interceptors.response.use(
 
     (response) => {
         return response;
@@ -27,4 +27,4 @@ api.interceptors.response.use(
     }
 );
 
-export default api;
+export default api_user;

@@ -1,18 +1,18 @@
-import api from '../auths/axio_Api';
+import api_user from '../auths/api_user';
 const getListFilm = () => {
-    return api.get(`movie/api/v1/list-movie`);
+    return api_user.get(`movie/api/v1/list-movie`);
 }
 const getFilm = (id) => {
-    return api.get(`movie/api/v1/get-movie/${id}`);
+    return api_user.get(`movie/api/v1/get-movie/${id}`);
 }
 const SearchFilm = (data) => {
-    return api.post(`movie/api/v1/search-movie`, data);
+    return api_user.post(`movie/api/v1/search-movie`, data);
 }
 const CreateComment = (data) => {
-    return api.post(`movie/api/v1/create-comment`, data);
+    return api_user.post(`movie/api/v1/create-comment`, data);
 }
 const TrainComment = () => {
-    return api.get(`movie/api/v1/train-comment`);
+    return api_user.get(`movie/api/v1/train-comment`);
 }
 export {
     getListFilm, getFilm, SearchFilm, CreateComment, TrainComment

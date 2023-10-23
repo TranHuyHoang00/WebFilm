@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { Button, Rate, Image, Avatar, Input } from 'antd';
 import { loginUser } from '../../../services/userServices';
 import { toast } from 'react-toastify';
-import { SetLocal_AcountUser } from '../../../auths/localStorage';
+import { Set_Local_Acount_User } from '../../../auths/local_storage';
 class login extends Component {
     constructor(props) {
         super(props);
@@ -59,7 +59,7 @@ class login extends Component {
             try {
                 let data = await loginUser(this.state.dataUser);
                 if (data && data.data && data.data.success == 1) {
-                    SetLocal_AcountUser(data.data.data);
+                    Set_Local_Acount_User(data.data.data);
                     toast.success('Đăng nhập thành công');
                     window.location.reload();
                 } else {

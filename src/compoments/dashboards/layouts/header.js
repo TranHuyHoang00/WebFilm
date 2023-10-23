@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { UserOutlined, CaretDownOutlined, } from '@ant-design/icons';
 import { Avatar, Dropdown, Space } from 'antd';
 import { withRouter } from 'react-router-dom';
-import { GetLocal_AcountAdmin, RemoveLocal_AcountAdmin } from '../../../auths/localStorage';
+import { Get_Local_Acount_DB, Remove_Local_Acount_DB } from '../../../auths/local_storage';
 class header extends Component {
     constructor(props) {
         super(props);
@@ -11,13 +11,13 @@ class header extends Component {
         }
     }
     async componentDidMount() {
-        let dataLogin = GetLocal_AcountAdmin();
+        let dataLogin = Get_Local_Acount_DB();
         if (dataLogin && dataLogin.data && dataLogin.data.access) {
             this.setState({ dataAcount: dataLogin.data.user })
         } else { this.setState({ dataAcount: {} }) }
     }
     LogOut = () => {
-        RemoveLocal_AcountAdmin();
+        Remove_Local_Acount_DB();
         this.props.history.push(`/login`);
     }
     render() {
@@ -30,11 +30,6 @@ class header extends Component {
             },
             {
                 key: '2',
-                label: (<a className='disabled'>{dataAcount && dataAcount.full_name ? dataAcount.full_name : 'None'}</a>),
-                disabled: true,
-            },
-            {
-                key: '3',
                 label: (<a onClick={() => this.LogOut()}>Đăng xuất</a>),
             },
         ];
