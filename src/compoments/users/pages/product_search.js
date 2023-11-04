@@ -34,7 +34,7 @@ class product_search extends Component {
         try {
             this.setState({ dataFilmSearch: [], dataFilmRecomended: [] })
             let data = await SearchFilm({ content: text });
-
+            console.log(data);
             if (data && data.data && data.data.success == 1) {
                 let dataRaw = data.data.data;
                 let obj = dataRaw[0];
@@ -51,7 +51,7 @@ class product_search extends Component {
                     this.setState({ dataFilmSearch: dataRaw, label: obj.category_train.name })
                     return 1;
                 } else {
-                    dataRaw.sort((a, b) => b.rate - a.rate);
+                    //dataRaw.sort((a, b) => b.rate - a.rate);
                     this.setState({
                         dataFilmRecomended: dataRaw, label: obj.category_train.name
                     })
